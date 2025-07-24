@@ -18,11 +18,11 @@ contract Ballot{
 
     Proposal[] public proposals;
 
-    mapping(address => Voter) voters;
+    mapping(address => Voter) public voters;
 
     constructor(bytes32[] memory proposalNames) {
         chairperson = msg.sender;
-        voters[chairperson].vote = 1;
+        voters[chairperson].weight = 1;
 
         for(uint i = 0; i < proposalNames.length; i++){
             proposals.push(Proposal({
@@ -55,7 +55,7 @@ contract Ballot{
         require(delegate_.weight >= 1);
 
         sender.voted = true;
-        sender.weight = 0;
+        sender.delegated = to;
 
         if(delegate_.voted){
             proposals[delegate_.vote].voteCount += sender.weight;
@@ -68,6 +68,7 @@ contract Ballot{
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "You have already voted");
         require(sender.weight != 0, "Doesn't have the right to vote");
+        require(proposal < proposals.length, "Invalid proposal index");
         sender.voted = true;
         sender.vote = proposal;
 
